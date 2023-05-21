@@ -13,3 +13,17 @@ then go from there, either deal with a form or make it show the next job
 eventually make it click to get the next page
 
 */
+
+{
+  const jobCards = document.querySelectorAll('.job-card-container--clickable');
+  const delay = 2000;
+  const clickElementWithDelay = function (element, delay) {
+    setTimeout(function () {
+      element.click();
+    }, delay);
+  };
+
+  jobCards.forEach(function (element, index) {
+    clickElementWithDelay(element, delay * (index + 1));
+  });
+}
