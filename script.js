@@ -20,10 +20,34 @@ eventually make it click to get the next page
   const clickElementWithDelay = function (element, delay) {
     setTimeout(function () {
       element.click();
+      applyForJob();
     }, delay);
   };
 
   jobCards.forEach(function (element, index) {
     clickElementWithDelay(element, delay * (index + 1));
   });
+
+  const applyForJob = () => {
+    const applyButton = document.querySelector('.jobs-apply-button');
+    applyButton.click();
+    setTimeout(() => {
+      // Step 1: Find all button elements on the page
+      const buttons = document.querySelectorAll('button');
+
+      // Step 2: Find the button with the text "Next"
+      const nextButton = Array.from(buttons).find(
+        button => button.textContent.trim() === 'Next'
+      );
+
+      // Step 3: Check if the button exists
+      if (nextButton) {
+        console.log('The button with the text "Next" exists on the page.');
+      } else {
+        console.log(
+          'The button with the text "Next" does not exist on the page.'
+        );
+      }
+    }, 5000);
+  };
 }
