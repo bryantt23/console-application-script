@@ -15,18 +15,24 @@ eventually make it click to get the next page
 */
 
 {
-  const jobCards = document.querySelectorAll('.job-card-container--clickable');
-  const delay = 2000;
-  const clickElementWithDelay = function (element, delay) {
-    setTimeout(function () {
-      element.click();
-      applyForJob();
-    }, delay);
-  };
+  //just grab one for now
+  // const delay = 3000;
+  // const clickElementWithDelay = function (element, delay) {
+  //   setTimeout(function () {
+  //     element.click();
+  //     applyForJob();
+  //   }, delay);
+  // };
 
-  jobCards.forEach(function (element, index) {
-    clickElementWithDelay(element, delay * (index + 1));
-  });
+  // later will have to make this a separate function & click after finishing a card
+  // jobCards.forEach(function (element, index) {
+  //   clickElementWithDelay(element, delay * (index + 1));
+  // });
+
+  const clickNextButton = nextButton => {
+    nextButton.click();
+    debugger;
+  };
 
   const applyForJob = () => {
     const applyButton = document.querySelector('.jobs-apply-button');
@@ -34,6 +40,21 @@ eventually make it click to get the next page
     setTimeout(() => {
       // Step 1: Find all button elements on the page
       const buttons = document.querySelectorAll('button');
+
+      /*TODO handle easy path
+create function for has next button
+click next button
+just click every next
+
+more complicated path
+look for review button & submit button
+
+maybe just use debugger for when there's an error
+
+
+
+
+*/
 
       // Step 2: Find the button with the text "Next"
       const nextButton = Array.from(buttons).find(
@@ -43,6 +64,8 @@ eventually make it click to get the next page
       // Step 3: Check if the button exists
       if (nextButton) {
         console.log('The button with the text "Next" exists on the page.');
+        debugger;
+        clickNextButton(nextButton);
       } else {
         console.log(
           'The button with the text "Next" does not exist on the page.'
@@ -50,4 +73,10 @@ eventually make it click to get the next page
       }
     }, 5000);
   };
+
+  const jobCards = document.querySelectorAll('.job-card-container--clickable');
+  const second = jobCards[1];
+  console.log('🚀 ~ file: script.js:21 ~ jobCards:', jobCards);
+  second.click();
+  applyForJob();
 }
