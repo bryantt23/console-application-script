@@ -29,14 +29,19 @@ eventually make it click to get the next page
   //   clickElementWithDelay(element, delay * (index + 1));
   // });
 
-  const clickNextButton = nextButton => {
-    nextButton.click();
+  // const clickNextButton = nextButton => {
+  //   nextButton.click();
+  //   // debugger;
+  // };
+
+  const dismissMoveToNextJobOrPage = () => {
+    const closeModalButton = document.querySelector('.artdeco-modal__dismiss');
+    closeModalButton.click();
     debugger;
   };
 
-  const applyForJob = () => {
-    const applyButton = document.querySelector('.jobs-apply-button');
-    applyButton.click();
+  // super easy path first
+  const handleJobCard = () => {
     setTimeout(() => {
       // Step 1: Find all button elements on the page
       const buttons = document.querySelectorAll('button');
@@ -64,14 +69,41 @@ maybe just use debugger for when there's an error
       // Step 3: Check if the button exists
       if (nextButton) {
         console.log('The button with the text "Next" exists on the page.');
-        debugger;
-        clickNextButton(nextButton);
+        // debugger;
+        // clickNextButton(nextButton);
+        nextButton.click();
+        setTimeout(handleJobCard, 1000);
       } else {
         console.log(
           'The button with the text "Next" does not exist on the page.'
         );
+
+        const reviewButton = Array.from(buttons).find(
+          button => button.textContent.trim() === 'Review'
+        );
+        const submitButton = Array.from(buttons).find(
+          button => button.textContent.trim() === 'Submit application'
+        );
+        if (reviewButton) {
+          reviewButton.click();
+          setTimeout(handleJobCard, 1000);
+        }
+        if (submitButton) {
+          submitButton.click();
+          /*
+          need to submit then go to next job card or next page of jobs
+          */
+          setTimeout(dismissMoveToNextJobOrPage, 1000);
+        }
       }
-    }, 5000);
+    }, 1000);
+  };
+
+  const applyForJob = () => {
+    const applyButton = document.querySelector('.jobs-apply-button');
+    applyButton.click();
+
+    handleJobCard();
   };
 
   const jobCards = document.querySelectorAll('.job-card-container--clickable');
