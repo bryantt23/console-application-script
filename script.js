@@ -35,11 +35,28 @@ eventually make it click to get the next page
   // };
 
   let applicationCompletedPercentage = 0;
+  let failedNextAttempts = 0;
+  const delayTime = 1000;
 
   const dismissMoveToNextJobOrPage = () => {
+    let targetButton;
     const closeModalButton = document.querySelector('.artdeco-modal__dismiss');
-    closeModalButton.click();
-    debugger;
+    const discardButton = document.querySelector(
+      '[data-control-name="discard_application_confirm_btn"]'
+    );
+
+    if (discardButton) {
+      targetButton = discardButton;
+    } else {
+      targetButton = closeModalButton;
+    }
+
+    targetButton.click();
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, delayTime);
+    });
   };
 
   const getProgressPercentage = () => {
@@ -55,13 +72,19 @@ eventually make it click to get the next page
     return progressValue;
   };
 
-  // super easy path first
-  const handleJobCard = () => {
-    setTimeout(() => {
-      // Step 1: Find all button elements on the page
-      const buttons = document.querySelectorAll('button');
+  const getButtons = () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        // Step 1: Find all button elements on the page
+        const buttons = document.querySelectorAll('button');
+        resolve(buttons);
+      }, delayTime);
+    });
+  };
 
-      /*TODO handle easy path
+  // super easy path first
+  const handleJobCard = async () => {
+    /*TODO handle easy path
         create function for has next button
         click next button
         just click every next
@@ -72,59 +95,67 @@ eventually make it click to get the next page
         maybe just use debugger for when there's an error
 */
 
-      applicationCompletedPercentage = getProgressPercentage();
+    const buttons = await getButtons();
+    applicationCompletedPercentage = getProgressPercentage();
+    // Step 2: Find the button with the text "Next"
+    const nextButton = Array.from(buttons).find(
+      button => button.textContent.trim() === 'Next'
+    );
+    const currentApplicationCompletedPercentage = getProgressPercentage();
+    console.log(
+      '🚀 ~ file: script.js:105 ~ handleJobCard ~ currentApplicationCompletedPercentage:',
+      currentApplicationCompletedPercentage
+    );
+    console.log(
+      '🚀 ~ file: script.js:84 ~ setTimeout ~ applicationCompletedPercentage:',
+      applicationCompletedPercentage
+    );
+    if (
+      currentApplicationCompletedPercentage === applicationCompletedPercentage
+    ) {
+      failedNextAttempts++;
       console.log(
-        '🚀 ~ file: script.js:72 ~ setTimeout ~ applicationCompletedPercentage:',
-        applicationCompletedPercentage
-      );
-      // Step 2: Find the button with the text "Next"
-      const nextButton = Array.from(buttons).find(
-        button => button.textContent.trim() === 'Next'
+        '🚀 ~ file: script.js:130 ~ handleJobCard ~ failedNextAttempts:',
+        failedNextAttempts
       );
 
-      // Step 3: Check if the button exists
-      if (nextButton) {
-        console.log('The button with the text "Next" exists on the page.');
-        // debugger;
-        // clickNextButton(nextButton);
-        nextButton.click();
-        const currentApplicationCompletedPercentage = getProgressPercentage();
-        console.log(
-          '🚀 ~ file: script.js:84 ~ setTimeout ~ applicationCompletedPercentage:',
-          applicationCompletedPercentage
-        );
-        if (
-          currentApplicationCompletedPercentage ===
-          applicationCompletedPercentage
-        ) {
-          debugger;
-        }
-
-        setTimeout(handleJobCard, 1000);
+      if (failedNextAttempts > 3) {
+        await dismissMoveToNextJobOrPage();
       } else {
-        console.log(
-          'The button with the text "Next" does not exist on the page.'
-        );
+        failedNextAttempts = 0;
+      }
 
-        const reviewButton = Array.from(buttons).find(
-          button => button.textContent.trim() === 'Review'
-        );
-        const submitButton = Array.from(buttons).find(
-          button => button.textContent.trim() === 'Submit application'
-        );
-        if (reviewButton) {
-          reviewButton.click();
-          setTimeout(handleJobCard, 1000);
-        }
-        if (submitButton) {
-          submitButton.click();
-          /*
+      applicationCompletedPercentage = currentApplicationCompletedPercentage;
+    }
+    // Step 3: Check if the button exists
+    if (nextButton) {
+      console.log('The button with the text "Next" exists on the page.');
+      // debugger;
+      // clickNextButton(nextButton);
+      nextButton.click();
+    } else {
+      console.log(
+        'The button with the text "Next" does not exist on the page.'
+      );
+
+      const reviewButton = Array.from(buttons).find(
+        button => button.textContent.trim() === 'Review'
+      );
+      const submitButton = Array.from(buttons).find(
+        button => button.textContent.trim() === 'Submit application'
+      );
+      if (reviewButton) {
+        reviewButton.click();
+        setTimeout(handleJobCard, delayTime);
+      }
+      if (submitButton) {
+        submitButton.click();
+        /*
           need to submit then go to next job card or next page of jobs
           */
-          setTimeout(dismissMoveToNextJobOrPage, 1000);
-        }
+        setTimeout(dismissMoveToNextJobOrPage, delayTime);
       }
-    }, 1000);
+    }
   };
 
   const applyForJob = () => {
@@ -133,13 +164,28 @@ eventually make it click to get the next page
       '🚀 ~ file: script.js:133 ~ applyForJob ~ applyButton:',
       applyButton
     );
-    applyButton.click();
-    handleJobCard();
+    debugger;
+    if (!applyButton) {
+      //already applied
+      clickOnCard();
+    } else {
+      applyButton.click();
+      handleJobCard();
+    }
   };
 
-  const jobCards = document.querySelectorAll('.job-card-container--clickable');
-  const first = jobCards[0];
-  console.log('🚀 ~ file: script.js:21 ~ jobCards:', jobCards);
-  first.click();
-  applyForJob();
+  let jobIndex = 0;
+
+  const clickOnCard = () => {
+    const jobCards = document.querySelectorAll(
+      '.job-card-container--clickable'
+    );
+    console.log('🚀 ~ file: script.js:161 ~ jobIndex:', jobIndex);
+    const targetCard = [...jobCards][jobIndex++];
+    console.log('🚀 ~ file: script.js:21 ~ jobCards:', jobCards);
+    targetCard.click();
+    setTimeout(applyForJob, 3000);
+  };
+
+  clickOnCard();
 }
