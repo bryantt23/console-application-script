@@ -34,10 +34,25 @@ eventually make it click to get the next page
   //   // debugger;
   // };
 
+  let applicationCompletedPercentage = 0;
+
   const dismissMoveToNextJobOrPage = () => {
     const closeModalButton = document.querySelector('.artdeco-modal__dismiss');
     closeModalButton.click();
     debugger;
+  };
+
+  const getProgressPercentage = () => {
+    const progressElement = document.querySelector(
+      '[aria-label^="Your job application progress is at"'
+    );
+    const progressText = progressElement.ariaLabel;
+    const progressValue = parseInt(progressText.match(/\d+/)[0]);
+    console.log(
+      '🚀 ~ file: script.js:55 ~ getProgressPercentage ~ progressValue:',
+      progressValue
+    );
+    return progressValue;
   };
 
   // super easy path first
@@ -47,20 +62,21 @@ eventually make it click to get the next page
       const buttons = document.querySelectorAll('button');
 
       /*TODO handle easy path
-create function for has next button
-click next button
-just click every next
+        create function for has next button
+        click next button
+        just click every next
 
-more complicated path
-look for review button & submit button
+        more complicated path
+        look for review button & submit button
 
-maybe just use debugger for when there's an error
-
-
-
-
+        maybe just use debugger for when there's an error
 */
 
+      applicationCompletedPercentage = getProgressPercentage();
+      console.log(
+        '🚀 ~ file: script.js:72 ~ setTimeout ~ applicationCompletedPercentage:',
+        applicationCompletedPercentage
+      );
       // Step 2: Find the button with the text "Next"
       const nextButton = Array.from(buttons).find(
         button => button.textContent.trim() === 'Next'
@@ -72,6 +88,18 @@ maybe just use debugger for when there's an error
         // debugger;
         // clickNextButton(nextButton);
         nextButton.click();
+        const currentApplicationCompletedPercentage = getProgressPercentage();
+        console.log(
+          '🚀 ~ file: script.js:84 ~ setTimeout ~ applicationCompletedPercentage:',
+          applicationCompletedPercentage
+        );
+        if (
+          currentApplicationCompletedPercentage ===
+          applicationCompletedPercentage
+        ) {
+          debugger;
+        }
+
         setTimeout(handleJobCard, 1000);
       } else {
         console.log(
@@ -101,14 +129,17 @@ maybe just use debugger for when there's an error
 
   const applyForJob = () => {
     const applyButton = document.querySelector('.jobs-apply-button');
+    console.log(
+      '🚀 ~ file: script.js:133 ~ applyForJob ~ applyButton:',
+      applyButton
+    );
     applyButton.click();
-
     handleJobCard();
   };
 
   const jobCards = document.querySelectorAll('.job-card-container--clickable');
-  const second = jobCards[1];
+  const first = jobCards[0];
   console.log('🚀 ~ file: script.js:21 ~ jobCards:', jobCards);
-  second.click();
+  first.click();
   applyForJob();
 }
