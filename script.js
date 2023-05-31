@@ -111,19 +111,8 @@ eventually make it click to get the next page
     const nextButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Next'
     );
-    console.log(
-      '🚀 ~ file: script.js:116 ~ handleJobCard ~ nextButton:',
-      nextButton
-    );
     const currentApplicationCompletedPercentage = getProgressPercentage();
-    console.log(
-      '🚀 ~ file: script.js:105 ~ handleJobCard ~ currentApplicationCompletedPercentage:',
-      currentApplicationCompletedPercentage
-    );
-    console.log(
-      '🚀 ~ file: script.js:84 ~ setTimeout ~ applicationCompletedPercentage:',
-      applicationCompletedPercentage
-    );
+
     if (
       currentApplicationCompletedPercentage === applicationCompletedPercentage
     ) {
@@ -133,7 +122,7 @@ eventually make it click to get the next page
         failedNextAttempts
       );
 
-      if (failedNextAttempts > 3) {
+      if (failedNextAttempts > 5) {
         failedNextAttempts = 0;
         await dismissMoveToNextJobOrPage();
         await dismissMoveToNextJobOrPage();
@@ -141,35 +130,47 @@ eventually make it click to get the next page
       }
 
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
+    } else {
+      failedNextAttempts = 0;
     }
 
-    // Step 3: Check if the button exists
-    if (nextButton && !isDisabled(nextButton)) {
-      console.log('The button with the text "Next" exists on the page.');
-      // clickNextButton(nextButton);
-      nextButton.click();
+    const reviewButton = Array.from(buttons).find(
+      button => button.textContent.trim() === 'Review'
+    );
+    console.log(
+      '🚀 ~ file: script.js:138 ~ handleJobCard ~ reviewButton:',
+      reviewButton
+    );
+    const submitButton = Array.from(buttons).find(
+      button => button.textContent.trim() === 'Submit application'
+    );
+    console.log(
+      '🚀 ~ file: script.js:142 ~ handleJobCard ~ submitButton:',
+      submitButton
+    );
+    if (reviewButton) {
+      reviewButton.click();
       setTimeout(handleJobCard, delayTime);
-    } else {
-      console.log(
-        'The button with the text "Next" does not exist on the page.'
-      );
-
-      const reviewButton = Array.from(buttons).find(
-        button => button.textContent.trim() === 'Review'
-      );
-      const submitButton = Array.from(buttons).find(
-        button => button.textContent.trim() === 'Submit application'
-      );
-      if (reviewButton) {
-        reviewButton.click();
-        setTimeout(handleJobCard, delayTime);
-      }
-      if (submitButton) {
-        submitButton.click();
-        /*
+    } else if (submitButton) {
+      submitButton.click();
+      /*
           need to submit then go to next job card or next page of jobs
           */
-        setTimeout(dismissMoveToNextJobOrPage, delayTime);
+      setTimeout(async () => {
+        await dismissMoveToNextJobOrPage();
+        clickOnCard();
+      }, 3000);
+    } else {
+      // Step 3: Check if the button exists
+      if (nextButton && !isDisabled(nextButton)) {
+        console.log('The button with the text "Next" exists on the page.');
+        // clickNextButton(nextButton);
+        nextButton.click();
+        setTimeout(handleJobCard, delayTime);
+      } else {
+        console.log(
+          'The button with the text "Next" does not exist on the page.'
+        );
       }
     }
   };
