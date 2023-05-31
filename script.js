@@ -82,6 +82,16 @@ eventually make it click to get the next page
     });
   };
 
+  const isDisabled = element => {
+    const classList = element.classList;
+    for (const classElement of classList) {
+      if (classElement.includes('disabled')) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   // super easy path first
   const handleJobCard = async () => {
     /*TODO handle easy path
@@ -100,6 +110,10 @@ eventually make it click to get the next page
     // Step 2: Find the button with the text "Next"
     const nextButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Next'
+    );
+    console.log(
+      '🚀 ~ file: script.js:116 ~ handleJobCard ~ nextButton:',
+      nextButton
     );
     const currentApplicationCompletedPercentage = getProgressPercentage();
     console.log(
@@ -120,19 +134,21 @@ eventually make it click to get the next page
       );
 
       if (failedNextAttempts > 3) {
-        await dismissMoveToNextJobOrPage();
-      } else {
         failedNextAttempts = 0;
+        await dismissMoveToNextJobOrPage();
+        await dismissMoveToNextJobOrPage();
+        clickOnCard();
       }
 
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
     }
+
     // Step 3: Check if the button exists
-    if (nextButton) {
+    if (nextButton && !isDisabled(nextButton)) {
       console.log('The button with the text "Next" exists on the page.');
-      // debugger;
       // clickNextButton(nextButton);
       nextButton.click();
+      setTimeout(handleJobCard, delayTime);
     } else {
       console.log(
         'The button with the text "Next" does not exist on the page.'
@@ -164,7 +180,7 @@ eventually make it click to get the next page
       '🚀 ~ file: script.js:133 ~ applyForJob ~ applyButton:',
       applyButton
     );
-    debugger;
+
     if (!applyButton) {
       //already applied
       clickOnCard();
