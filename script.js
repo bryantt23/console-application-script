@@ -92,6 +92,16 @@ eventually make it click to get the next page
     return false;
   };
 
+  const includesClassName = (element, targetClass) => {
+    const classList = element.classList;
+    for (const classElement of classList) {
+      if (classElement.includes(targetClass)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   // super easy path first
   const handleJobCard = async () => {
     /*TODO handle easy path
@@ -162,7 +172,7 @@ eventually make it click to get the next page
       }, 3000);
     } else {
       // Step 3: Check if the button exists
-      if (nextButton && !isDisabled(nextButton)) {
+      if (nextButton && !includesClassName(nextButton, 'disabled')) {
         console.log('The button with the text "Next" exists on the page.');
         // clickNextButton(nextButton);
         nextButton.click();
@@ -197,6 +207,19 @@ eventually make it click to get the next page
     const jobCards = document.querySelectorAll(
       '.job-card-container--clickable'
     );
+    console.log('🚀 ~ file: script.js:210 ~ clickOnCard ~ jobCards:', jobCards);
+    const activeJobCard = [...jobCards]
+      .map((jobCard, index) => {
+        return { jobCard, index };
+      })
+      .filter((jobCard, index) => {
+        return includesClassName(jobCard.jobCard, '--active');
+      });
+    console.log(
+      '🚀 ~ file: script.js:212 ~ clickOnCard ~ activeJobCard:',
+      activeJobCard
+    );
+    debugger;
     console.log('🚀 ~ file: script.js:161 ~ jobIndex:', jobIndex);
     const targetCard = [...jobCards][jobIndex++];
     console.log('🚀 ~ file: script.js:21 ~ jobCards:', jobCards);
