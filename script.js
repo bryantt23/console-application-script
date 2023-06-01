@@ -39,6 +39,37 @@ eventually make it click to get the next page
   const TIME_DELAY = 1000;
   const MAX_FAILED_ATTEMPTS_ALLOWED = 5;
 
+  // DOM functions
+  const getButtons = () => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        // Step 1: Find all button elements on the page
+        const buttons = document.querySelectorAll('button');
+        resolve(buttons);
+      }, TIME_DELAY);
+    });
+  };
+
+  const includesClassName = (element, targetClass) => {
+    const classList = element.classList;
+    for (const classElement of classList) {
+      if (classElement.includes(targetClass)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const getJobApplicationProgressPercentage = () => {
+    const progressElement = document.querySelector(
+      '[aria-label^="Your job application progress is at"'
+    );
+    const progressText = progressElement.ariaLabel;
+    const progressValue = parseInt(progressText.match(/\d+/)[0]);
+    return progressValue;
+  };
+
+  // Main functions
   const dismissMoveToNextJobOrPage = () => {
     let targetButton;
     const closeModalButton = document.querySelector('.artdeco-modal__dismiss');
@@ -60,35 +91,6 @@ eventually make it click to get the next page
     });
   };
 
-  const getProgressPercentage = () => {
-    const progressElement = document.querySelector(
-      '[aria-label^="Your job application progress is at"'
-    );
-    const progressText = progressElement.ariaLabel;
-    const progressValue = parseInt(progressText.match(/\d+/)[0]);
-    return progressValue;
-  };
-
-  const getButtons = () => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        // Step 1: Find all button elements on the page
-        const buttons = document.querySelectorAll('button');
-        resolve(buttons);
-      }, TIME_DELAY);
-    });
-  };
-
-  const includesClassName = (element, targetClass) => {
-    const classList = element.classList;
-    for (const classElement of classList) {
-      if (classElement.includes(targetClass)) {
-        return true;
-      }
-    }
-    return false;
-  };
-
   // super easy path first
   const handleJobCard = async () => {
     /*TODO handle easy path
@@ -103,12 +105,13 @@ eventually make it click to get the next page
 */
 
     const buttons = await getButtons();
-    applicationCompletedPercentage = getProgressPercentage();
+    applicationCompletedPercentage = getJobApplicationProgressPercentage();
     // Step 2: Find the button with the text "Next"
     const nextButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Next'
     );
-    const currentApplicationCompletedPercentage = getProgressPercentage();
+    const currentApplicationCompletedPercentage =
+      getJobApplicationProgressPercentage();
 
     if (
       currentApplicationCompletedPercentage === applicationCompletedPercentage
