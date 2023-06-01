@@ -36,7 +36,8 @@ eventually make it click to get the next page
 
   let applicationCompletedPercentage = 0;
   let failedNextAttempts = 0;
-  const delayTime = 1000;
+  const TIME_DELAY = 1000;
+  const MAX_FAILED_ATTEMPTS_ALLOWED = 5;
 
   const dismissMoveToNextJobOrPage = () => {
     let targetButton;
@@ -55,7 +56,7 @@ eventually make it click to get the next page
     return new Promise(resolve => {
       setTimeout(() => {
         resolve();
-      }, delayTime);
+      }, TIME_DELAY);
     });
   };
 
@@ -65,10 +66,6 @@ eventually make it click to get the next page
     );
     const progressText = progressElement.ariaLabel;
     const progressValue = parseInt(progressText.match(/\d+/)[0]);
-    console.log(
-      '🚀 ~ file: script.js:55 ~ getProgressPercentage ~ progressValue:',
-      progressValue
-    );
     return progressValue;
   };
 
@@ -78,18 +75,8 @@ eventually make it click to get the next page
         // Step 1: Find all button elements on the page
         const buttons = document.querySelectorAll('button');
         resolve(buttons);
-      }, delayTime);
+      }, TIME_DELAY);
     });
-  };
-
-  const isDisabled = element => {
-    const classList = element.classList;
-    for (const classElement of classList) {
-      if (classElement.includes('disabled')) {
-        return true;
-      }
-    }
-    return false;
   };
 
   const includesClassName = (element, targetClass) => {
@@ -127,12 +114,7 @@ eventually make it click to get the next page
       currentApplicationCompletedPercentage === applicationCompletedPercentage
     ) {
       failedNextAttempts++;
-      console.log(
-        '🚀 ~ file: script.js:130 ~ handleJobCard ~ failedNextAttempts:',
-        failedNextAttempts
-      );
-
-      if (failedNextAttempts > 5) {
+      if (failedNextAttempts > MAX_FAILED_ATTEMPTS_ALLOWED) {
         failedNextAttempts = 0;
         await dismissMoveToNextJobOrPage();
         await dismissMoveToNextJobOrPage();
@@ -147,20 +129,12 @@ eventually make it click to get the next page
     const reviewButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Review'
     );
-    console.log(
-      '🚀 ~ file: script.js:138 ~ handleJobCard ~ reviewButton:',
-      reviewButton
-    );
     const submitButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Submit application'
     );
-    console.log(
-      '🚀 ~ file: script.js:142 ~ handleJobCard ~ submitButton:',
-      submitButton
-    );
     if (reviewButton) {
       reviewButton.click();
-      setTimeout(handleJobCard, delayTime);
+      setTimeout(handleJobCard, TIME_DELAY);
     } else if (submitButton) {
       submitButton.click();
       /*
@@ -176,7 +150,7 @@ eventually make it click to get the next page
         console.log('The button with the text "Next" exists on the page.');
         // clickNextButton(nextButton);
         nextButton.click();
-        setTimeout(handleJobCard, delayTime);
+        setTimeout(handleJobCard, TIME_DELAY);
       } else {
         console.log(
           'The button with the text "Next" does not exist on the page.'
@@ -187,11 +161,6 @@ eventually make it click to get the next page
 
   const applyForJob = () => {
     const applyButton = document.querySelector('.jobs-apply-button');
-    console.log(
-      '🚀 ~ file: script.js:133 ~ applyForJob ~ applyButton:',
-      applyButton
-    );
-
     if (!applyButton) {
       //already applied
       clickOnCard();
@@ -207,7 +176,6 @@ eventually make it click to get the next page
     const jobCards = document.querySelectorAll(
       '.job-card-container--clickable'
     );
-    console.log('🚀 ~ file: script.js:210 ~ clickOnCard ~ jobCards:', jobCards);
     const activeJobCard = [...jobCards]
       .map((jobCard, index) => {
         return { jobCard, index };
@@ -215,14 +183,8 @@ eventually make it click to get the next page
       .filter((jobCard, index) => {
         return includesClassName(jobCard.jobCard, '--active');
       });
-    console.log(
-      '🚀 ~ file: script.js:212 ~ clickOnCard ~ activeJobCard:',
-      activeJobCard
-    );
     debugger;
-    console.log('🚀 ~ file: script.js:161 ~ jobIndex:', jobIndex);
     const targetCard = [...jobCards][jobIndex++];
-    console.log('🚀 ~ file: script.js:21 ~ jobCards:', jobCards);
     targetCard.click();
     setTimeout(applyForJob, 3000);
   };
