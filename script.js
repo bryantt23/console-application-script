@@ -121,7 +121,7 @@ eventually make it click to get the next page
         failedNextAttempts = 0;
         await dismissMoveToNextJobOrPage();
         await dismissMoveToNextJobOrPage();
-        clickOnCard();
+        clickOnJobCard();
       }
 
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
@@ -145,7 +145,7 @@ eventually make it click to get the next page
           */
       setTimeout(async () => {
         await dismissMoveToNextJobOrPage();
-        clickOnCard();
+        clickOnJobCard();
       }, 3000);
     } else {
       // Step 3: Check if the button exists
@@ -166,7 +166,7 @@ eventually make it click to get the next page
     const applyButton = document.querySelector('.jobs-apply-button');
     if (!applyButton) {
       //already applied
-      clickOnCard();
+      clickOnJobCard();
     } else {
       applyButton.click();
       handleJobCard();
@@ -175,7 +175,7 @@ eventually make it click to get the next page
 
   let jobIndex = 0;
 
-  const clickOnCard = () => {
+  const clickOnJobCard = () => {
     const jobCards = document.querySelectorAll(
       '.job-card-container--clickable'
     );
@@ -192,5 +192,5 @@ eventually make it click to get the next page
     setTimeout(applyForJob, 3000);
   };
 
-  clickOnCard();
+  clickOnJobCard();
 }
