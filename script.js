@@ -75,6 +75,22 @@ console log the failed job application url
   };
 
   // Main functions
+  const loadNextPage = () => {
+    const paginationButtons = document.querySelectorAll(
+      '.artdeco-pagination__indicator--number button'
+    );
+    paginationButtons.forEach((button, index) => {
+      if (button.parentNode.classList.contains('active')) {
+        //this button is the currently selected page, click on the next page button if it's available
+        if (paginationButtons[index + 1]) {
+          paginationButtons[index + 1].click();
+        }
+        //exit loop
+        return;
+      }
+    });
+  };
+
   const dismissMoveToNextJobOrPage = () => {
     let targetButton;
     const closeModalButton = document.querySelector('.artdeco-modal__dismiss');
