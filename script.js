@@ -77,9 +77,9 @@ get it to go to the next page
   };
 
   const createHtmlFile = () => {
-    const urlList = failedApplicationUrls.map(
-      (url, index) => `<li><a href=${url}>Failed job #${index}</li>`
-    );
+    const urlList = failedApplicationUrls
+      .map((url, index) => `<li><a href=${url}>Failed job #${index + 1}</li>`)
+      .join('');
     const htmlContent = `<html><head><title>My HTML File</title></head>
     <body><h1>Failed application urls</h1>
     <ul>
