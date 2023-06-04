@@ -207,7 +207,6 @@ console log the failed job application url
       .filter((jobCard, index) => {
         return includesClassName(jobCard.jobCard, '--active');
       });
-    debugger;
     const targetCard = [...jobCards][jobIndex++];
     targetCard.click();
     setTimeout(applyForJob, 3000);
