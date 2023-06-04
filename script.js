@@ -12,10 +12,10 @@ then go from there, either deal with a form or make it show the next job
 eventually make it click to get the next page
 
 
-get it to go to the next page
 console log the failed job application url
   first get it to log on the card click
   then log after max attempts
+get it to go to the next page
 
 */
 
@@ -39,10 +39,12 @@ console log the failed job application url
   //   // debugger;
   // };
 
+  let failedApplicationUrls = [];
   let applicationCompletedPercentage = 0;
   let failedNextAttempts = 0;
   const TIME_DELAY = 1000;
   const MAX_FAILED_ATTEMPTS_ALLOWED = 5;
+  const MAX_FAILED_URLS = 5;
 
   // DOM functions
   const getButtons = () => {
@@ -74,6 +76,37 @@ console log the failed job application url
     return progressValue;
   };
 
+  const createHtmlFile = () => {
+    const urlList = failedApplicationUrls.map(
+      (url, index) => `<li><a href=${url}>Failed job #${index}</li>`
+    );
+    const htmlContent = `<html><head><title>My HTML File</title></head>
+    <body><h1>Failed application urls</h1>
+    <ul>
+        ${urlList}
+    </ul>
+    </body></html>`;
+    var fileName = 'myFile.html';
+
+    // Create a Blob with the HTML content
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+
+    // Create a temporary URL for the Blob
+    const url = URL.createObjectURL(blob);
+
+    // Create a link element
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+
+    // Programmatically trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up the temporary URL
+    URL.revokeObjectURL(url);
+  };
+
   // Main functions
   const loadNextPage = () => {
     const paginationButtons = document.querySelectorAll(
@@ -89,6 +122,15 @@ console log the failed job application url
         return;
       }
     });
+  };
+
+  const logFailedUrl = () => {
+    const url = window.location.href;
+    failedApplicationUrls.push(url);
+    if (failedApplicationUrls.length === MAX_FAILED_URLS) {
+      createHtmlFile();
+      failedApplicationUrls = [];
+    }
   };
 
   const dismissMoveToNextJobOrPage = () => {
@@ -140,6 +182,7 @@ console log the failed job application url
       failedNextAttempts++;
       if (failedNextAttempts > MAX_FAILED_ATTEMPTS_ALLOWED) {
         failedNextAttempts = 0;
+        logFailedUrl();
         await dismissMoveToNextJobOrPage();
         await dismissMoveToNextJobOrPage();
         clickOnJobCard();
