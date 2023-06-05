@@ -40,11 +40,11 @@ get it to go to the next page
   // };
 
   let failedApplicationUrls = [];
-  let applicationCompletedPercentage = 0;
+  let applicationCompletedPercentage = null;
   let failedNextAttempts = 0;
   let jobIndex = 0;
   const TIME_DELAY = 1000;
-  const MAX_FAILED_ATTEMPTS_ALLOWED = 5;
+  const MAX_FAILED_ATTEMPTS_ALLOWED = 3;
   const MAX_FAILED_URLS = 5;
   const JOB_CARDS_PER_PAGE = 25;
 
@@ -73,6 +73,9 @@ get it to go to the next page
     const progressElement = document.querySelector(
       '[aria-label^="Your job application progress is at"'
     );
+    if (!progressElement) {
+      return 0;
+    }
     const progressText = progressElement.ariaLabel;
     const progressValue = parseInt(progressText.match(/\d+/)[0]);
     return progressValue;
@@ -80,7 +83,12 @@ get it to go to the next page
 
   const createHtmlFile = () => {
     const urlList = failedApplicationUrls
-      .map((url, index) => `<li><a href=${url}>Failed job #${index + 1}</li>`)
+      .map(
+        (failedCompany, index) =>
+          `<li><a href=${failedCompany.url}>Failed job #${index + 1}, company ${
+            failedCompany.companyName
+          }</li>`
+      )
       .join('');
     const htmlContent = `<html><head><title>My HTML File</title></head>
     <body><h1>Failed application urls</h1>
@@ -132,11 +140,12 @@ get it to go to the next page
   };
 
   const logFailedUrl = () => {
+    console.log(`Failed with company ${getCompanyName()}`);
     const url = window.location.href;
-    failedApplicationUrls.push(url);
+    failedApplicationUrls.push({ url, companyName: getCompanyName() });
     if (failedApplicationUrls.length === MAX_FAILED_URLS) {
       createHtmlFile();
-      failedApplicationUrls = [];
+      failedApplicationUrls = failedApplicationUrls.splice(0);
     }
   };
 
@@ -175,7 +184,6 @@ get it to go to the next page
 */
 
     const buttons = await getButtons();
-    applicationCompletedPercentage = getJobApplicationProgressPercentage();
     // Step 2: Find the button with the text "Next"
     const nextButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Next'
@@ -187,12 +195,17 @@ get it to go to the next page
       currentApplicationCompletedPercentage === applicationCompletedPercentage
     ) {
       failedNextAttempts++;
+      console.log(
+        '🚀 ~ file: script.js:206 ~ handleJobCard ~ failedNextAttempts:',
+        failedNextAttempts
+      );
+
       if (failedNextAttempts > MAX_FAILED_ATTEMPTS_ALLOWED) {
         failedNextAttempts = 0;
         logFailedUrl();
         await dismissMoveToNextJobOrPage();
         await dismissMoveToNextJobOrPage();
-        clickOnJobCard();
+        clickOnNextJobCard();
       }
 
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
@@ -200,23 +213,26 @@ get it to go to the next page
       failedNextAttempts = 0;
     }
 
+    applicationCompletedPercentage = currentApplicationCompletedPercentage;
     const reviewButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Review'
     );
     const submitButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Submit application'
     );
+
     if (reviewButton) {
       reviewButton.click();
       setTimeout(handleJobCard, TIME_DELAY);
     } else if (submitButton) {
       submitButton.click();
+      console.log(`Succeeded with company ${getCompanyName()}`);
       /*
           need to submit then go to next job card or next page of jobs
           */
       setTimeout(async () => {
         await dismissMoveToNextJobOrPage();
-        clickOnJobCard();
+        clickOnNextJobCard();
       }, 3000);
     } else {
       // Step 3: Check if the button exists
@@ -233,22 +249,44 @@ get it to go to the next page
     }
   };
 
-  const applyForJob = () => {
-    const applyButton = document.querySelector('.jobs-apply-button');
-    ++jobIndex;
-    clickOnJobCard();
-    /*
-    if (!applyButton) {
-      //already applied
-      clickOnJobCard();
-    } else {
-      applyButton.click();
-      handleJobCard();
+  const getCompanyName = () => {
+    // Get all the anchor elements on the page
+    const anchorElements = document.querySelectorAll('a');
+
+    // Iterate over the anchor elements
+    for (let i = 0; i < anchorElements.length; i++) {
+      const anchorElement = anchorElements[i];
+
+      // Check if the href includes "/company"
+      if (anchorElement.href.includes('/company')) {
+        // Get the text content of the anchor element
+        const text = anchorElement.textContent;
+
+        // make sure it is a text
+        if (anchorElement.classList.contains('t-normal')) {
+          // Do something with the text, such as logging it
+          return text.trimLeft().trimRight();
+        }
+      }
     }
-    */
   };
 
-  const clickOnJobCard = async () => {
+  const applyForJob = async () => {
+    console.log(`On job card for company: ${getCompanyName()}`);
+    jobIndex++;
+    const applyButton = document.querySelector('.jobs-apply-button');
+
+    if (!applyButton) {
+      //already applied
+      console.log(`Skipping company: ${getCompanyName()}`);
+      clickOnNextJobCard();
+    } else {
+      applyButton.click();
+      await handleJobCard();
+    }
+  };
+
+  const clickOnNextJobCard = async () => {
     const jobCards = document.querySelectorAll(
       '.job-card-container--clickable'
     );
@@ -256,20 +294,17 @@ get it to go to the next page
       jobIndex = 0;
       await loadNextPage();
     }
-    /*
-    const activeJobCard = [...jobCards]
-      .map((jobCard, index) => {
-        return { jobCard, index };
-      })
-      .filter((jobCard, index) => {
-        return includesClassName(jobCard.jobCard, '--active');
-      });
-    */
+    console.log(
+      '🚀 ~ file: script.js:280 ~ clickOnNextJobCard ~ jobIndex:',
+      jobIndex
+    );
+
+    applicationCompletedPercentage = null;
     const targetCard = [...jobCards][jobIndex];
     targetCard.scrollIntoView();
     targetCard.click();
-    setTimeout(applyForJob, TIME_DELAY);
+    setTimeout(applyForJob, 2000);
   };
 
-  clickOnJobCard();
+  clickOnNextJobCard();
 }
