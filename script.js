@@ -42,9 +42,11 @@ get it to go to the next page
   let failedApplicationUrls = [];
   let applicationCompletedPercentage = 0;
   let failedNextAttempts = 0;
+  let jobIndex = 0;
   const TIME_DELAY = 1000;
   const MAX_FAILED_ATTEMPTS_ALLOWED = 5;
   const MAX_FAILED_URLS = 5;
+  const JOB_CARDS_PER_PAGE = 25;
 
   // DOM functions
   const getButtons = () => {
@@ -121,6 +123,11 @@ get it to go to the next page
         //exit loop
         return;
       }
+    });
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, 2000);
     });
   };
 
@@ -228,6 +235,9 @@ get it to go to the next page
 
   const applyForJob = () => {
     const applyButton = document.querySelector('.jobs-apply-button');
+    ++jobIndex;
+    clickOnJobCard();
+    /*
     if (!applyButton) {
       //already applied
       clickOnJobCard();
@@ -235,14 +245,18 @@ get it to go to the next page
       applyButton.click();
       handleJobCard();
     }
+    */
   };
 
-  let jobIndex = 0;
-
-  const clickOnJobCard = () => {
+  const clickOnJobCard = async () => {
     const jobCards = document.querySelectorAll(
       '.job-card-container--clickable'
     );
+    if (jobIndex === JOB_CARDS_PER_PAGE) {
+      jobIndex = 0;
+      await loadNextPage();
+    }
+    /*
     const activeJobCard = [...jobCards]
       .map((jobCard, index) => {
         return { jobCard, index };
@@ -250,9 +264,11 @@ get it to go to the next page
       .filter((jobCard, index) => {
         return includesClassName(jobCard.jobCard, '--active');
       });
-    const targetCard = [...jobCards][jobIndex++];
+    */
+    const targetCard = [...jobCards][jobIndex];
+    targetCard.scrollIntoView();
     targetCard.click();
-    setTimeout(applyForJob, 3000);
+    setTimeout(applyForJob, TIME_DELAY);
   };
 
   clickOnJobCard();
