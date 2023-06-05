@@ -204,7 +204,6 @@ get it to go to the next page
         failedNextAttempts = 0;
         logFailedUrl();
         await dismissMoveToNextJobOrPage();
-        await dismissMoveToNextJobOrPage();
         clickOnNextJobCard();
       }
 
@@ -273,7 +272,7 @@ get it to go to the next page
 
   const applyForJob = async () => {
     console.log(`On job card for company: ${getCompanyName()}`);
-    jobIndex++;
+    ++jobIndex;
     const applyButton = document.querySelector('.jobs-apply-button');
 
     if (!applyButton) {
@@ -290,14 +289,18 @@ get it to go to the next page
     const jobCards = document.querySelectorAll(
       '.job-card-container--clickable'
     );
-    if (jobIndex === JOB_CARDS_PER_PAGE) {
-      jobIndex = 0;
-      await loadNextPage();
-    }
     console.log(
       '🚀 ~ file: script.js:280 ~ clickOnNextJobCard ~ jobIndex:',
       jobIndex
     );
+    console.log(
+      '🚀 ~ file: script.js:293 ~ clickOnNextJobCard ~ jobCards.length:',
+      jobCards.length
+    );
+    if (jobIndex >= JOB_CARDS_PER_PAGE) {
+      jobIndex = 0;
+      await loadNextPage();
+    }
 
     applicationCompletedPercentage = null;
     const targetCard = [...jobCards][jobIndex];
