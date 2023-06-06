@@ -44,6 +44,7 @@ get it to go to the next page
   let failedNextAttempts = 0;
   let jobIndex = 0;
   const TIME_DELAY = 1000;
+  const TIME_DELAY_EXTENDED = 3000;
   const MAX_FAILED_ATTEMPTS_ALLOWED = 3;
   const MAX_FAILED_URLS = 5;
   const JOB_CARDS_PER_PAGE = 25;
@@ -135,7 +136,7 @@ get it to go to the next page
     return new Promise(resolve => {
       setTimeout(() => {
         resolve();
-      }, 2000);
+      }, TIME_DELAY_EXTENDED);
     });
   };
 
@@ -172,6 +173,12 @@ get it to go to the next page
 
   // super easy path first
   const handleJobCard = async () => {
+    const applyButton = document.querySelector('.jobs-apply-button');
+
+    if (applyButton) {
+      await applyButton.click();
+    }
+
     /*TODO handle easy path
         create function for has next button
         click next button
@@ -233,7 +240,7 @@ get it to go to the next page
       setTimeout(async () => {
         await dismissMoveToNextJobOrPage();
         clickOnNextJobCard();
-      }, 3000);
+      }, TIME_DELAY_EXTENDED);
     } else {
       // Step 3: Check if the button exists
       if (nextButton && !includesClassName(nextButton, 'disabled')) {
@@ -245,6 +252,7 @@ get it to go to the next page
         console.log(
           'The button with the text "Next" does not exist on the page.'
         );
+        setTimeout(handleJobCard, TIME_DELAY);
       }
     }
   };
@@ -281,7 +289,6 @@ get it to go to the next page
       console.log(`Skipping company: ${getCompanyName()}`);
       clickOnNextJobCard();
     } else {
-      applyButton.click();
       await handleJobCard();
     }
   };
@@ -303,7 +310,7 @@ get it to go to the next page
     const targetCard = [...jobCards][jobIndex];
     targetCard.scrollIntoView();
     targetCard.click();
-    setTimeout(applyForJob, 2000);
+    setTimeout(applyForJob, TIME_DELAY_EXTENDED);
   };
 
   clickOnNextJobCard();
