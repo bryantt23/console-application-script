@@ -1,52 +1,12 @@
-/*
-Plan
-https://www.linkedin.com/jobs/search/?currentJobId=3556940185&distance=100&f_AL=true&f_WT=2&geoId=102277331&keywords=reactjs
-
-get the link to every job post
-click on every job post with a 2 second delay between clicks, make sure it shows each job
-
-after this works then focus on the url for the first job post
-get it to click easy apply button
-then go from there, either deal with a form or make it show the next job
-
-eventually make it click to get the next page
-
-
-console log the failed job application url
-  first get it to log on the card click
-  then log after max attempts
-get it to go to the next page
-
-*/
-
 {
-  //just grab one for now
-  // const delay = 3000;
-  // const clickElementWithDelay = function (element, delay) {
-  //   setTimeout(function () {
-  //     element.click();
-  //     applyForJob();
-  //   }, delay);
-  // };
-
-  // later will have to make this a separate function & click after finishing a card
-  // jobCards.forEach(function (element, index) {
-  //   clickElementWithDelay(element, delay * (index + 1));
-  // });
-
-  // const clickNextButton = nextButton => {
-  //   nextButton.click();
-  //   // debugger;
-  // };
-
   let failedApplicationUrls = [];
   let applicationCompletedPercentage = null;
-  let failedNextAttempts = 0;
+  let clickOnNextButtonFailedCount = 0;
   let jobIndex = 0;
-  const TIME_DELAY = 1000;
-  const TIME_DELAY_EXTENDED = 3000;
-  const MAX_FAILED_ATTEMPTS_ALLOWED = 3;
-  const MAX_FAILED_URLS = 5;
+  const TIME_DELAY_SHORT = 1000;
+  const TIME_DELAY_LONG = 3000;
+  const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 3;
+  const MAX_FAILED_JOB_APPLICATIONS = 3;
   const JOB_CARDS_PER_PAGE = 25;
 
   // DOM functions
@@ -56,11 +16,11 @@ get it to go to the next page
         // Step 1: Find all button elements on the page
         const buttons = document.querySelectorAll('button');
         resolve(buttons);
-      }, TIME_DELAY);
+      }, TIME_DELAY_SHORT);
     });
   };
 
-  const includesClassName = (element, targetClass) => {
+  const elementIncludesClass = (element, targetClass) => {
     const classList = element.classList;
     for (const classElement of classList) {
       if (classElement.includes(targetClass)) {
@@ -91,13 +51,15 @@ get it to go to the next page
           }</li>`
       )
       .join('');
+
     const htmlContent = `<html><head><title>My HTML File</title></head>
     <body><h1>Failed application urls</h1>
     <ul>
         ${urlList}
     </ul>
     </body></html>`;
-    var fileName = 'myFile.html';
+
+    const fileName = 'myFile.html';
 
     // Create a Blob with the HTML content
     const blob = new Blob([htmlContent], { type: 'text/html' });
@@ -136,7 +98,7 @@ get it to go to the next page
     return new Promise(resolve => {
       setTimeout(() => {
         resolve();
-      }, TIME_DELAY_EXTENDED);
+      }, TIME_DELAY_LONG);
     });
   };
 
@@ -144,13 +106,13 @@ get it to go to the next page
     console.log(`Failed with company ${getCompanyName()}`);
     const url = window.location.href;
     failedApplicationUrls.push({ url, companyName: getCompanyName() });
-    if (failedApplicationUrls.length === MAX_FAILED_URLS) {
+    if (failedApplicationUrls.length === MAX_FAILED_JOB_APPLICATIONS) {
       createHtmlFile();
       failedApplicationUrls = failedApplicationUrls.splice(0);
     }
   };
 
-  const dismissMoveToNextJobOrPage = () => {
+  const closeOrDiscardApplication = () => {
     let targetButton;
     const closeModalButton = document.querySelector('.artdeco-modal__dismiss');
     const discardButton = document.querySelector(
@@ -167,11 +129,10 @@ get it to go to the next page
     return new Promise(resolve => {
       setTimeout(() => {
         resolve();
-      }, TIME_DELAY);
+      }, TIME_DELAY_SHORT);
     });
   };
 
-  // super easy path first
   const handleJobCard = async () => {
     const applyButton = document.querySelector('.jobs-apply-button');
 
@@ -179,48 +140,42 @@ get it to go to the next page
       await applyButton.click();
     }
 
-    /*TODO handle easy path
-        create function for has next button
-        click next button
-        just click every next
-
-        more complicated path
-        look for review button & submit button
-
-        maybe just use debugger for when there's an error
-*/
-
     const buttons = await getButtons();
-    // Step 2: Find the button with the text "Next"
+    // Find the button with the text "Next"
     const nextButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Next'
     );
     const currentApplicationCompletedPercentage =
       getJobApplicationProgressPercentage();
 
+    // if the previous and current application percentage is the same
+    // this means clicking on the next button did not advance the job application
     if (
       currentApplicationCompletedPercentage === applicationCompletedPercentage
     ) {
-      failedNextAttempts++;
+      clickOnNextButtonFailedCount++;
       console.log(
-        '🚀 ~ file: script.js:206 ~ handleJobCard ~ failedNextAttempts:',
-        failedNextAttempts
+        '🚀 ~ file: script.js:206 ~ handleJobCard ~ clickOnNextButtonFailedCount:',
+        clickOnNextButtonFailedCount
       );
 
-      if (failedNextAttempts > MAX_FAILED_ATTEMPTS_ALLOWED) {
-        failedNextAttempts = 0;
+      if (clickOnNextButtonFailedCount > CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS) {
+        // reset the variables, close the job application, move on to the next job
+        clickOnNextButtonFailedCount = 0;
         logFailedUrl();
-        await dismissMoveToNextJobOrPage();
-        await dismissMoveToNextJobOrPage();
+        await closeOrDiscardApplication();
+        await closeOrDiscardApplication();
         clickOnNextJobCard();
       }
 
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
     } else {
-      failedNextAttempts = 0;
+      // the job application made progress so reset the failed count
+      clickOnNextButtonFailedCount = 0;
     }
 
     applicationCompletedPercentage = currentApplicationCompletedPercentage;
+
     const reviewButton = Array.from(buttons).find(
       button => button.textContent.trim() === 'Review'
     );
@@ -230,29 +185,28 @@ get it to go to the next page
 
     if (reviewButton) {
       reviewButton.click();
-      setTimeout(handleJobCard, TIME_DELAY);
+      setTimeout(handleJobCard, TIME_DELAY_SHORT);
     } else if (submitButton) {
       submitButton.click();
       console.log(`Succeeded with company ${getCompanyName()}`);
-      /*
-          need to submit then go to next job card or next page of jobs
-          */
+
+      // need to submit then go to next job card or next page of jobs
       setTimeout(async () => {
-        await dismissMoveToNextJobOrPage();
+        await closeOrDiscardApplication();
         clickOnNextJobCard();
-      }, TIME_DELAY_EXTENDED);
+      }, TIME_DELAY_LONG);
     } else {
-      // Step 3: Check if the button exists
-      if (nextButton && !includesClassName(nextButton, 'disabled')) {
+      // click the next button
+      if (nextButton && !elementIncludesClass(nextButton, 'disabled')) {
         console.log('The button with the text "Next" exists on the page.');
-        // clickNextButton(nextButton);
         nextButton.click();
-        setTimeout(handleJobCard, TIME_DELAY);
+        setTimeout(handleJobCard, TIME_DELAY_SHORT);
       } else {
+        // go to the next job card
         console.log(
           'The button with the text "Next" does not exist on the page.'
         );
-        setTimeout(handleJobCard, TIME_DELAY);
+        setTimeout(handleJobCard, TIME_DELAY_SHORT);
       }
     }
   };
@@ -310,7 +264,7 @@ get it to go to the next page
     const targetCard = [...jobCards][jobIndex];
     targetCard.scrollIntoView();
     targetCard.click();
-    setTimeout(applyForJob, TIME_DELAY_EXTENDED);
+    setTimeout(applyForJob, TIME_DELAY_LONG);
   };
 
   clickOnNextJobCard();
