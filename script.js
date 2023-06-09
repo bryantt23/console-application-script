@@ -13,7 +13,6 @@
   const getButtons = () => {
     return new Promise(resolve => {
       setTimeout(() => {
-        // Step 1: Find all button elements on the page
         const buttons = document.querySelectorAll('button');
         resolve(buttons);
       }, TIME_DELAY_SHORT);
@@ -43,41 +42,47 @@
   };
 
   const createHtmlFile = () => {
-    const urlList = failedApplicationUrls
-      .map(
-        (failedCompany, index) =>
-          `<li><a href=${failedCompany.url}>Failed job #${index + 1}, company ${
-            failedCompany.companyName
-          }</li>`
-      )
-      .join('');
+    return new Promise(resolve => {
+      const urlList = failedApplicationUrls
+        .map(
+          (failedCompany, index) =>
+            `<li><a href=${failedCompany.url}>Failed job #${
+              index + 1
+            }, company ${failedCompany.companyName}</li>`
+        )
+        .join('');
 
-    const htmlContent = `<html><head><title>My HTML File</title></head>
-    <body><h1>Failed application urls</h1>
+      const htmlContent = `<html>
+    <head><title>My HTML File</title></head>
+    <body>
+    <h1>Failed application urls</h1>
     <ul>
         ${urlList}
     </ul>
-    </body></html>`;
+    </body>
+    </html>`;
 
-    const fileName = 'myFile.html';
+      const fileName = 'myFile.html';
 
-    // Create a Blob with the HTML content
-    const blob = new Blob([htmlContent], { type: 'text/html' });
+      // Create a Blob with the HTML content
+      const blob = new Blob([htmlContent], { type: 'text/html' });
 
-    // Create a temporary URL for the Blob
-    const url = URL.createObjectURL(blob);
+      // Create a temporary URL for the Blob
+      const url = URL.createObjectURL(blob);
 
-    // Create a link element
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
+      // Create a link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
 
-    // Programmatically trigger the download
-    document.body.appendChild(link);
-    link.click();
+      // Programmatically trigger the download
+      document.body.appendChild(link);
+      link.click();
 
-    // Clean up the temporary URL
-    URL.revokeObjectURL(url);
+      // Clean up the temporary URL
+      URL.revokeObjectURL(url);
+      resolve();
+    });
   };
 
   // Main functions
@@ -86,12 +91,13 @@
       '.artdeco-pagination__indicator--number button'
     );
     paginationButtons.forEach((button, index) => {
+      // find currently selected page
       if (button.parentNode.classList.contains('active')) {
-        //this button is the currently selected page, click on the next page button if it's available
+        // click on the next page button
         if (paginationButtons[index + 1]) {
           paginationButtons[index + 1].click();
         }
-        //exit loop
+        // exit loop
         return;
       }
     });
@@ -102,12 +108,18 @@
     });
   };
 
-  const logFailedUrl = () => {
-    console.log(`Failed with company ${getCompanyName()}`);
+  const logFailedUrl = async () => {
+    console.log(`
+    
+    
+    Failed with company ${getCompanyName()}
+    
+    
+    `);
     const url = window.location.href;
     failedApplicationUrls.push({ url, companyName: getCompanyName() });
     if (failedApplicationUrls.length === MAX_FAILED_JOB_APPLICATIONS) {
-      createHtmlFile();
+      await createHtmlFile();
       failedApplicationUrls = failedApplicationUrls.splice(0);
     }
   };
@@ -160,14 +172,13 @@
       );
 
       if (clickOnNextButtonFailedCount > CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS) {
-        // reset the variables, close the job application, move on to the next job
+        // reset the variable, close the job application, move on to the next job
         clickOnNextButtonFailedCount = 0;
         logFailedUrl();
         await closeOrDiscardApplication();
         await closeOrDiscardApplication();
         clickOnNextJobCard();
       }
-
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
     } else {
       // the job application made progress so reset the failed count
@@ -188,21 +199,25 @@
       setTimeout(handleJobCard, TIME_DELAY_SHORT);
     } else if (submitButton) {
       submitButton.click();
-      console.log(`Succeeded with company ${getCompanyName()}`);
+      console.log(`
+      
+      
+      Succeeded with company ${getCompanyName()}
+      
+      
+      `);
 
-      // need to submit then go to next job card or next page of jobs
       setTimeout(async () => {
+        // need to close modal that appears when successfully applying for a job
         await closeOrDiscardApplication();
         clickOnNextJobCard();
       }, TIME_DELAY_LONG);
     } else {
-      // click the next button
       if (nextButton && !elementIncludesClass(nextButton, 'disabled')) {
         console.log('The button with the text "Next" exists on the page.');
         nextButton.click();
         setTimeout(handleJobCard, TIME_DELAY_SHORT);
       } else {
-        // go to the next job card
         console.log(
           'The button with the text "Next" does not exist on the page.'
         );
@@ -216,17 +231,17 @@
     const anchorElements = document.querySelectorAll('a');
 
     // Iterate over the anchor elements
-    for (let i = 0; i < anchorElements.length; i++) {
-      const anchorElement = anchorElements[i];
+    for (const element of anchorElements) {
+      const anchorElement = element;
 
       // Check if the href includes "/company"
       if (anchorElement.href.includes('/company')) {
         // Get the text content of the anchor element
         const text = anchorElement.textContent;
 
-        // make sure it is a text
+        // make sure it is text
         if (anchorElement.classList.contains('t-normal')) {
-          // Do something with the text, such as logging it
+          // remove text whitespace
           return text.trimLeft().trimRight();
         }
       }
@@ -234,13 +249,25 @@
   };
 
   const applyForJob = async () => {
-    console.log(`On job card for company: ${getCompanyName()}`);
+    console.log(`
+    
+
+    On the job card for company: ${getCompanyName()}
+    
+    
+    `);
     jobIndex++;
     const applyButton = document.querySelector('.jobs-apply-button');
 
     if (!applyButton) {
       //already applied
-      console.log(`Skipping company: ${getCompanyName()}`);
+      console.log(`
+      
+      
+      Skipping company: ${getCompanyName()}
+      
+      
+      `);
       clickOnNextJobCard();
     } else {
       await handleJobCard();
