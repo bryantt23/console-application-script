@@ -120,7 +120,7 @@
     failedApplicationUrls.push({ url, companyName: getCompanyName() });
     if (failedApplicationUrls.length === MAX_FAILED_JOB_APPLICATIONS) {
       await createHtmlFile();
-      failedApplicationUrls = failedApplicationUrls.splice(0);
+      failedApplicationUrls.splice(0);
     }
   };
 
