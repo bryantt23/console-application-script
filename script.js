@@ -8,6 +8,7 @@
   const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 3;
   const MAX_FAILED_JOB_APPLICATIONS = 3;
   const JOB_CARDS_PER_PAGE = 25;
+  const companiesToSkip = ['Company A', 'Company B', 'Company C'];
 
   // DOM functions
   const getButtons = () => {
@@ -229,42 +230,40 @@
   const getCompanyName = () => {
     // Get all the anchor elements on the page
     const anchorElements = document.querySelectorAll('a');
-
-    // Iterate over the anchor elements
-    for (const element of anchorElements) {
-      const anchorElement = element;
-
-      // Check if the href includes "/company"
-      if (anchorElement.href.includes('/company')) {
-        // Get the text content of the anchor element
-        const text = anchorElement.textContent;
-
-        // make sure it is text
-        if (anchorElement.classList.contains('t-normal')) {
-          // remove text whitespace
-          return text.trimLeft().trimRight();
-        }
-      }
-    }
+    const companyLinks = [...anchorElements].filter(anchorElement =>
+      anchorElement.href.includes('/company')
+    );
+    return companyLinks[0].textContent;
   };
 
   const applyForJob = async () => {
+    const companyName = getCompanyName();
     console.log(`
     
 
-    On the job card for company: ${getCompanyName()}
+    On the job card for company: ${companyName}
     
     
     `);
     jobIndex++;
-    const applyButton = document.querySelector('.jobs-apply-button');
 
+    const applyButton = document.querySelector('.jobs-apply-button');
     if (!applyButton) {
       //already applied
       console.log(`
       
       
-      Skipping company: ${getCompanyName()}
+      Skipping company: ${companyName} because already applied
+      
+      
+      `);
+      clickOnNextJobCard();
+    } else if (companiesToSkip.includes(companyName)) {
+      //in skip list
+      console.log(`
+      
+      
+      Skipping company: ${companyName} because in skip list
       
       
       `);
