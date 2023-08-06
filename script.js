@@ -5,8 +5,9 @@
   let jobIndex = 0;
   const TIME_DELAY_SHORT = 1000;
   const TIME_DELAY_LONG = 3000;
-  const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 3;
-  const MAX_FAILED_JOB_APPLICATIONS = 3;
+  const TIME_DELAY_CARD = 10000;
+  const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 2;
+  const MAX_FAILED_JOB_APPLICATIONS = 7;
   const JOB_CARDS_PER_PAGE = 25;
   const companiesToSkip = ['Company A', 'Company B', 'Company C'];
 
@@ -86,6 +87,11 @@
     });
   };
 
+  // Helper functions
+  const delay = ms => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  };
+
   // Main functions
   const loadNextPage = () => {
     const paginationButtons = document.querySelectorAll(
@@ -147,6 +153,7 @@
   };
 
   const handleJobCard = async () => {
+    console.log(' in handleJobCard' + new Date().getSeconds());
     const applyButton = document.querySelector('.jobs-apply-button');
 
     if (applyButton) {
@@ -179,6 +186,9 @@
         await closeOrDiscardApplication();
         await closeOrDiscardApplication();
         clickOnNextJobCard();
+      } else if (currentApplicationCompletedPercentage !== 0) {
+        console.log(' being delayed' + new Date().getSeconds());
+        await delay(TIME_DELAY_CARD);
       }
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
     } else {
