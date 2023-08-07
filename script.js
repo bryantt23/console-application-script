@@ -2,10 +2,10 @@
   let failedApplicationUrls = [];
   let applicationCompletedPercentage = null;
   let clickOnNextButtonFailedCount = 0;
-  let jobIndex = 0;
+  let jobIndex;
   const TIME_DELAY_SHORT = 1000;
   const TIME_DELAY_LONG = 3000;
-  const TIME_DELAY_CARD = 15000;
+  const TIME_DELAY_CARD = 12000;
   const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 2;
   const MAX_FAILED_JOB_APPLICATIONS = 7;
   const JOB_CARDS_PER_PAGE = 25;
@@ -29,6 +29,38 @@
       }
     }
     return false;
+  };
+
+  const getCompanyName = () => {
+    // Get all the anchor elements on the page
+    const anchorElements = document.querySelectorAll('a');
+    const companyLinks = [...anchorElements].filter(anchorElement =>
+      anchorElement.href.includes('/company')
+    );
+    return companyLinks[0].textContent;
+  };
+
+  const getCurrentCardIndex = () => {
+    const nodelist = document.querySelectorAll(
+      '.scaffold-layout__list-container'
+    );
+
+    const children = nodelist[0].children;
+    let index = -1; // Default to -1 if the element is not found
+
+    for (let i = 0; i < children.length; i++) {
+      const li = children[i];
+      if (
+        li.querySelector('.job-card-container__primary-description') &&
+        li
+          .querySelector('.job-card-container__primary-description')
+          .textContent.includes(getCompanyName())
+      ) {
+        index = i;
+        break;
+      }
+    }
+    return index;
   };
 
   const getJobApplicationProgressPercentage = () => {
@@ -154,14 +186,7 @@
 
   const handleJobCard = async () => {
     const now = new Date();
-    console.log(
-      'in handleJobCard at: ' +
-        now.getHours() +
-        ':' +
-        now.getMinutes() +
-        ':' +
-        now.getSeconds()
-    );
+    console.log('in handleJobCard at: ' + now.toLocaleTimeString());
 
     const applyButton = document.querySelector('.jobs-apply-button');
 
@@ -245,21 +270,12 @@
     }
   };
 
-  const getCompanyName = () => {
-    // Get all the anchor elements on the page
-    const anchorElements = document.querySelectorAll('a');
-    const companyLinks = [...anchorElements].filter(anchorElement =>
-      anchorElement.href.includes('/company')
-    );
-    return companyLinks[0].textContent;
-  };
-
   const applyForJob = async () => {
     const companyName = getCompanyName();
     console.log(`
     
 
-    On the job card for company: ${companyName}
+    On the job card for company: ${companyName}, index ${jobIndex}
     
     
     `);
@@ -306,10 +322,17 @@
 
     applicationCompletedPercentage = null;
     const targetCard = [...jobCards][jobIndex];
-    targetCard.scrollIntoView();
-    targetCard.click();
+    if (targetCard) {
+      targetCard.scrollIntoView();
+      targetCard.click();
+    }
     setTimeout(applyForJob, TIME_DELAY_LONG);
   };
 
-  clickOnNextJobCard();
+  const start = () => {
+    jobIndex = getCurrentCardIndex();
+    clickOnNextJobCard();
+  };
+
+  start();
 }
