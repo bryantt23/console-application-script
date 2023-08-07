@@ -5,8 +5,9 @@
   let jobIndex = 0;
   const TIME_DELAY_SHORT = 1000;
   const TIME_DELAY_LONG = 3000;
-  const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 3;
-  const MAX_FAILED_JOB_APPLICATIONS = 3;
+  const TIME_DELAY_CARD = 15000;
+  const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 2;
+  const MAX_FAILED_JOB_APPLICATIONS = 7;
   const JOB_CARDS_PER_PAGE = 25;
   const companiesToSkip = ['Company A', 'Company B', 'Company C'];
 
@@ -35,7 +36,7 @@
       '[aria-label^="Your job application progress is at"'
     );
     if (!progressElement) {
-      return 0;
+      return -1;
     }
     const progressText = progressElement.ariaLabel;
     const progressValue = parseInt(progressText.match(/\d+/)[0]);
@@ -84,6 +85,11 @@
       URL.revokeObjectURL(url);
       resolve();
     });
+  };
+
+  // Helper functions
+  const delay = ms => {
+    return new Promise(resolve => setTimeout(resolve, ms));
   };
 
   // Main functions
@@ -147,6 +153,16 @@
   };
 
   const handleJobCard = async () => {
+    const now = new Date();
+    console.log(
+      'in handleJobCard at: ' +
+        now.getHours() +
+        ':' +
+        now.getMinutes() +
+        ':' +
+        now.getSeconds()
+    );
+
     const applyButton = document.querySelector('.jobs-apply-button');
 
     if (applyButton) {
@@ -179,6 +195,8 @@
         await closeOrDiscardApplication();
         await closeOrDiscardApplication();
         clickOnNextJobCard();
+      } else {
+        await delay(TIME_DELAY_CARD);
       }
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
     } else {
