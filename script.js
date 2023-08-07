@@ -5,7 +5,7 @@
   let jobIndex = 0;
   const TIME_DELAY_SHORT = 1000;
   const TIME_DELAY_LONG = 3000;
-  const TIME_DELAY_CARD = 10000;
+  const TIME_DELAY_CARD = 15000;
   const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 2;
   const MAX_FAILED_JOB_APPLICATIONS = 7;
   const JOB_CARDS_PER_PAGE = 25;
@@ -36,7 +36,7 @@
       '[aria-label^="Your job application progress is at"'
     );
     if (!progressElement) {
-      return 0;
+      return -1;
     }
     const progressText = progressElement.ariaLabel;
     const progressValue = parseInt(progressText.match(/\d+/)[0]);
@@ -153,7 +153,6 @@
   };
 
   const handleJobCard = async () => {
-    console.log(' in handleJobCard' + new Date().getSeconds());
     const applyButton = document.querySelector('.jobs-apply-button');
 
     if (applyButton) {
@@ -186,8 +185,7 @@
         await closeOrDiscardApplication();
         await closeOrDiscardApplication();
         clickOnNextJobCard();
-      } else if (currentApplicationCompletedPercentage !== 0) {
-        console.log(' being delayed' + new Date().getSeconds());
+      } else {
         await delay(TIME_DELAY_CARD);
       }
       applicationCompletedPercentage = currentApplicationCompletedPercentage;
