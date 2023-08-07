@@ -153,6 +153,16 @@
   };
 
   const handleJobCard = async () => {
+    const now = new Date();
+    console.log(
+      'in handleJobCard at: ' +
+        now.getHours() +
+        ':' +
+        now.getMinutes() +
+        ':' +
+        now.getSeconds()
+    );
+
     const applyButton = document.querySelector('.jobs-apply-button');
 
     if (applyButton) {
