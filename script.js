@@ -125,7 +125,7 @@
   };
 
   // Main functions
-  const loadNextPage = () => {
+  const loadNextPage = async () => {
     const paginationButtons = document.querySelectorAll(
       '.artdeco-pagination__indicator--number button'
     );
@@ -140,11 +140,8 @@
         return;
       }
     });
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, TIME_DELAY_LONG);
-    });
+
+    await delay(TIME_DELAY_LONG);
   };
 
   const logFailedUrl = async () => {
@@ -163,7 +160,7 @@
     }
   };
 
-  const closeOrDiscardApplication = () => {
+  const closeOrDiscardApplication = async () => {
     let targetButton;
     const closeModalButton = document.querySelector('.artdeco-modal__dismiss');
     const discardButton = document.querySelector(
@@ -177,11 +174,7 @@
     }
 
     targetButton.click();
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, TIME_DELAY_SHORT);
-    });
+    await delay(TIME_DELAY_SHORT);
   };
 
   const handleJobCard = async () => {
@@ -240,7 +233,8 @@
 
     if (reviewButton) {
       reviewButton.click();
-      setTimeout(handleJobCard, TIME_DELAY_SHORT);
+      await delay(TIME_DELAY_SHORT);
+      await handleJobCard();
     } else if (submitButton) {
       submitButton.click();
       console.log(`
@@ -251,11 +245,10 @@
       
       `);
 
-      setTimeout(async () => {
-        // need to close modal that appears when successfully applying for a job
-        await closeOrDiscardApplication();
-        clickOnNextJobCard();
-      }, TIME_DELAY_LONG);
+      await delay(TIME_DELAY_LONG);
+      // need to close modal that appears when successfully applying for a job
+      await closeOrDiscardApplication();
+      await clickOnNextJobCard();
     } else {
       if (nextButton && !elementIncludesClass(nextButton, 'disabled')) {
         console.log('The button with the text "Next" exists on the page.');
