@@ -37,7 +37,9 @@
     const companyLinks = [...anchorElements].filter(anchorElement =>
       anchorElement.href.includes('/company')
     );
-    return companyLinks[0].textContent;
+    return companyLinks.length > 0
+      ? companyLinks[0].textContent
+      : 'unknown company name';
   };
 
   const getCurrentCardIndex = () => {
