@@ -175,7 +175,9 @@
       targetButton = closeModalButton;
     }
 
-    targetButton.click();
+    if (targetButton) {
+      targetButton.click();
+    }
     await delay(TIME_DELAY_SHORT);
   };
 
