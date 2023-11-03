@@ -5,11 +5,23 @@
   let jobIndex;
   const TIME_DELAY_SHORT = 1000;
   const TIME_DELAY_LONG = 3000;
-  const TIME_DELAY_CARD = 12000;
+  const TIME_DELAY_CARD = 15000;
   const CLICK_ON_NEXT_BUTTON_MAXIMUM_FAILS = 2;
   const MAX_FAILED_JOB_APPLICATIONS = 7;
   const JOB_CARDS_PER_PAGE = 25;
-  const companiesToSkip = ['Company A', 'Company B', 'Company C'];
+  const companiesToSkip = [
+    'CyberCoders',
+    'Insight Global',
+    'Jobot',
+    'Braintrust',
+    'EarnIn',
+    'Forsta',
+    'SoFi',
+    '',
+    '',
+    '',
+    ''
+  ];
 
   // DOM functions
   const getButtons = () => {
@@ -216,6 +228,9 @@
         logFailedUrl();
         await closeOrDiscardApplication();
         await closeOrDiscardApplication();
+        await closeOrDiscardApplication();
+        await closeOrDiscardApplication();
+        await closeOrDiscardApplication();
         clickOnNextJobCard();
       } else {
         await delay(TIME_DELAY_CARD);
@@ -251,6 +266,10 @@
 
       await delay(TIME_DELAY_LONG);
       // need to close modal that appears when successfully applying for a job
+      await closeOrDiscardApplication();
+      await closeOrDiscardApplication();
+      await closeOrDiscardApplication();
+      await closeOrDiscardApplication();
       await closeOrDiscardApplication();
       await clickOnNextJobCard();
     } else {
