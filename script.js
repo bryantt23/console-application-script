@@ -341,6 +341,7 @@
     if (targetCard) {
       targetCard.scrollIntoView();
       targetCard.click();
+      delay(TIME_DELAY_SHORT)
     }
     setTimeout(applyForJob, TIME_DELAY_LONG);
   };
